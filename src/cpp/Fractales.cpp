@@ -28,7 +28,7 @@ void FractaleGLImage::idleFunc(){
     ++acc;
 
     //Do not change everytime to make something smoother
-    if(acc == 1000){
+    if(acc == 100000){
        image->incN();
        updateView();
        acc = 0;

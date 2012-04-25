@@ -6,24 +6,24 @@
 #include "ChronoOMPs.h"
 
 #include "Fractales.hpp"
-#include "JuliaSequential.hpp"
-#include "JuliaOMP.hpp"
+#include "NewtonSequential.hpp"
+#include "NewtonOMP.hpp"
 
-//The Julia Fractales Launchers
-int launchJulia();
-int launchJuliaOMP();
+//The Newton Fractales Launchers
+int launchNewton();
+int launchNewtonOMP();
 
 //The benchmark
 int bench();
 
 int main(void){
-    //return launchJulia();
-    //return launchJuliaOMP();
-    return bench();
+    return launchNewton();
+    //return launchNewtonOMP();
+    //return bench();
 }
 
-int launchJulia(){
-    std::cout << "Launch Julia" << std::endl;
+int launchNewton(){
+    std::cout << "Launch Newton" << std::endl;
 
     char** argv = NULL;
     GLUTWindowManagers::init(0, argv);
@@ -38,7 +38,7 @@ int launchJulia(){
     int w = 800;
     int h = 600;
 
-    JuliaImageSequential* functionalImage = new JuliaImageSequential(w, h, domain, -0.745, +0.1);
+    NewtonImageSequential* functionalImage = new NewtonImageSequential(w, h, domain, -0.745, +0.1);
     FractaleGLImage* functionSelections = new FractaleGLImage(functionalImage);
 
     GLUTWindowManagers* windowManager = GLUTWindowManagers::getInstance();
@@ -48,10 +48,10 @@ int launchJulia(){
     return 0;
 }
 
-int launchJuliaOMP(){
+int launchNewtonOMP(){
     omp_set_num_threads(THREADS);
 
-    std::cout << "Launch Julia with OMP" << std::endl;
+    std::cout << "Launch Newton with OMP" << std::endl;
 
     char** argv = NULL;
     GLUTWindowManagers::init(0, argv);
@@ -66,7 +66,7 @@ int launchJuliaOMP(){
     int w = 800;
     int h = 600;
 
-    JuliaImageOMP* functionalImage = new JuliaImageOMP(w, h, domain, -0.745, +0.1);
+    NewtonImageOMP* functionalImage = new NewtonImageOMP(w, h, domain, -0.745, +0.1);
     FractaleGLImage* functionSelections = new FractaleGLImage(functionalImage);
 
     GLUTWindowManagers* windowManager = GLUTWindowManagers::getInstance();
@@ -106,7 +106,7 @@ float julia(float x, float y){
     return n == N ? 0 : (n / (float) N);
 }
 
-void benchParallelJulia(){
+void benchParallelNewton(){
     omp_set_num_threads(THREADS);
 
     float xMin = -1.7;
@@ -145,7 +145,7 @@ void benchParallelJulia(){
     }
 }
 
-void benchSequentialJulia(){
+void benchSequentialNewton(){
     float xMin = -1.7;
     float xMax = +1.7;
     float yMin = -1.1;
@@ -174,20 +174,20 @@ void benchSequentialJulia(){
     }
 }
 
-void benchJulia(){
-    std::cout << "Launch the Julia benchmark" << std::endl;
+void benchNewton(){
+    std::cout << "Launch the Newton benchmark" << std::endl;
 
     ChronoOMPs chronos;
     chronos.start();
 
-    benchSequentialJulia();
+    benchSequentialNewton();
 
     double timeSequential = chronos.timeElapse();
     std::cout << "Sequential version took " << timeSequential << "s" << std::endl;
 
     chronos.start();
 
-    benchParallelJulia();
+    benchParallelNewton();
 
     double timeParallel = chronos.timeElapse();
     std::cout << "OMP version took " << timeParallel << "s" << std::endl;
@@ -196,7 +196,7 @@ void benchJulia(){
 }
 
 int bench(){
-    benchJulia();
+    benchNewton();
 
     return 0;
 }

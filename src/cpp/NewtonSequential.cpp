@@ -3,13 +3,13 @@
 
 #include "omp.h"
 
-#include "JuliaSequential.hpp"
+#include "NewtonSequential.hpp"
 
-JuliaImageSequential::JuliaImageSequential(int m, int n, DomaineMaths domain, float cReal, float cImag) : FractaleImage(m,n,domain,10), cReal(cReal), cImag(cImag) {
+NewtonImageSequential::NewtonImageSequential(int m, int n, DomaineMaths domain, float cReal, float cImag) : FractaleImage(m,n,domain,10), cReal(cReal), cImag(cImag) {
     //Nothing to init
 }
 
-void JuliaImageSequential::refreshAll(const DomaineMaths& domainNew){
+void NewtonImageSequential::refreshAll(const DomaineMaths& domainNew){
     int w = getW();
     int h = getH();
 
@@ -21,7 +21,7 @@ void JuliaImageSequential::refreshAll(const DomaineMaths& domainNew){
 	float x = domainNew.x0;
 
 	for(int j = 1; j <= w; ++j){
-	    float h = julia(x, y);
+	    float h = newton(x, y);
 
 	    //setFloatRGBA(i, j, h, h, h);
 	    if(h == 0){
@@ -37,7 +37,7 @@ void JuliaImageSequential::refreshAll(const DomaineMaths& domainNew){
     }
 }
 
-float JuliaImageSequential::julia(float x, float y){
+float NewtonImageSequential::newton(float x, float y){
     float real = x;
     float imag = y;
 
