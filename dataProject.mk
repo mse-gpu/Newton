@@ -1,0 +1,6 @@
+TARGET_NAME:=FractalesOMP
+TARGET_MODE:=EXE
+TARGET_PATH:=/tmp/ramdrive/${USER}/Targets/${TARGET_NAME}
+TARGET_DEPLOY_PATH:=../PRODUCTION/Deploy/bin
+CODE_DEFINE_VARIABLES+=
+SRC_AUX+= ../Common/src/core
