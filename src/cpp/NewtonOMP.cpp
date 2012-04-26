@@ -5,7 +5,7 @@
 
 #include "NewtonOMP.hpp"
 
-NewtonImageOMP::NewtonImageOMP(int m, int n, DomaineMaths domain, float cReal, float cImag) : FractaleImage(m,n,domain,10), cReal(cReal), cImag(cImag) {
+NewtonImageOMP::NewtonImageOMP(int m, int n, DomaineMaths domain, float cReal, float cImag) : FractaleImage(m,n,domain), cReal(cReal), cImag(cImag) {
     //Nothing to init
 }
 
@@ -47,21 +47,5 @@ void NewtonImageOMP::refreshAll(const DomaineMaths& domainNew){
 }
 
 float NewtonImageOMP::newton(float x, float y){
-    float real = x;
-    float imag = y;
-
-    float n = 0;
-    float norm;
-
-    do{
-	float tmpReal = real;
-	real = real * real - imag * imag + cReal;
-	imag = tmpReal * imag + imag * tmpReal + cImag;
-
-	++n;
-
-	norm = sqrt(real * real + imag * imag);
-    } while (norm <= 2.0 && n < N);
-
-    return n == N ? 0 : (n / (float) N);
+    return 0;
 }

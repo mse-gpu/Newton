@@ -3,34 +3,20 @@
 
 #include "Fractales.hpp"
 
-FractaleImage::FractaleImage(int m, int n, DomaineMaths domain, int N) : ImageFonctionelSelectionMOOs(m,n,domain), N(N) {
+FractaleImage::FractaleImage(int m, int n, DomaineMaths domain) : ImageFonctionelSelectionMOOs(m,n,domain){
     //Nothing to init
 }
 
-void FractaleImage::incN(){
-    ++N;
-
-    refreshAll(getCurrentDomaine());
-}
-
 void FractaleImage::onDomaineChangePerformed(const DomaineMaths& domainNew){
-    N = 10;
-
     //Repaint everything
     refreshAll(domainNew);
 }
 
 FractaleGLImage::FractaleGLImage(FractaleImage* image) : GLImageFonctionelSelections(image), image(image) {
-    acc = 0;
+    //Nothing to init
 }
 
 void FractaleGLImage::idleFunc(){
-    ++acc;
-
-    //Do not change everytime to make something smoother
-    if(acc == 100000){
-       image->incN();
-       updateView();
-       acc = 0;
-    }
+    //Nothing
+    //TODO Remove the function
 }

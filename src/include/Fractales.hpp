@@ -8,15 +8,11 @@
 
 class FractaleImage : public ImageFonctionelSelectionMOOs {
     public:
-	FractaleImage(int m, int n, DomaineMaths domain, int N);
-
-	void incN();
+	FractaleImage(int m, int n, DomaineMaths domain);
 
     protected:
 	void onDomaineChangePerformed(const DomaineMaths& domainNew);
 	virtual void refreshAll(const DomaineMaths& domainNew) = 0;
-
-	int N;
 };
 
 class FractaleGLImage : public GLImageFonctionelSelections {
@@ -24,8 +20,6 @@ class FractaleGLImage : public GLImageFonctionelSelections {
 	FractaleGLImage(FractaleImage* image);
 
     private:
-	float acc;
-
 	void idleFunc();
 
 	FractaleImage* image;

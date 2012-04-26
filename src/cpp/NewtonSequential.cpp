@@ -5,8 +5,9 @@
 
 #include "NewtonSequential.hpp"
 
-NewtonImageSequential::NewtonImageSequential(int m, int n, DomaineMaths domain, float cReal, float cImag) : FractaleImage(m,n,domain,10), cReal(cReal), cImag(cImag) {
+NewtonImageSequential::NewtonImageSequential(int m, int n, DomaineMaths domain) : FractaleImage(m,n,domain){
     //Nothing to init
+    refreshAll(domain);
 }
 
 void NewtonImageSequential::refreshAll(const DomaineMaths& domainNew){
@@ -21,13 +22,16 @@ void NewtonImageSequential::refreshAll(const DomaineMaths& domainNew){
 	float x = domainNew.x0;
 
 	for(int j = 1; j <= w; ++j){
-	    float h = newton(x, y);
+	    int color = newton(x, y);
 
-	    //setFloatRGBA(i, j, h, h, h);
-	    if(h == 0){
-		setHSB(i, j, 0, 0, 0);
-	    } else {
-		setHSB(i, j, h, 1.0, 1.0);
+	    if(color == 0){
+		setFloatRGBA(i, j, 0, 0, 0);
+	    } else if(color == 1){
+		setFloatRGBA(i, j, 1, 0, 0);
+	    } else if(color == 2){
+		setFloatRGBA(i, j, 0, 1, 0);
+	    } else if(color == 3){
+		setFloatRGBA(i, j, 0, 0, 1);
 	    }
 
 	    x += dx;
@@ -37,22 +41,98 @@ void NewtonImageSequential::refreshAll(const DomaineMaths& domainNew){
     }
 }
 
-float NewtonImageSequential::newton(float x, float y){
-    float real = x;
-    float imag = y;
+struct vector{
+	float x;
+	float y;
+};
 
-    float n = 0;
-    float norm;
+#define LIMIT 1000
+#define PRECISION 1
+#define CIRCLE 3
+#define SQRT3 1.7320508075688772935
 
-    do{
-	float tmpReal = real;
-	real = real * real - imag * imag + cReal;
-	imag = tmpReal * imag + imag * tmpReal + cImag;
+bool near(float src, float target){
+    float delta = src - target;
 
-	++n;
+    if(delta < 0){
+	delta = -delta;
+    }
 
-	norm = sqrt(real * real + imag * imag);
-    } while (norm <= 2.0 && n < N);
+    if(delta <= PRECISION){
+	return true;
+    }
 
-    return n == N ? 0 : (n / (float) N);
+    return false;
+}
+
+int NewtonImageSequential::newton(float x, float y){
+    vector xn = {x,y};
+
+    int current = 0;
+
+    int times = 0;
+    int last = 0;
+
+    while(current < LIMIT){
+	float fnx = xn.x * xn.x * xn.x - 3 * xn.x * xn.y * xn.y - 1;
+	float fny = xn.y * xn.y * xn.y - 3 * xn.x * xn.x * xn.y;
+
+	float ja = 3 * xn.x * xn.x - 3 * xn.y * xn.y;
+	float jd = 3 * xn.y * xn.y - 3 * xn.x * xn.x;
+	float jbc = 6 * xn.x * xn.y;
+
+	float det = ja * jd - jbc * jbc; //det(A) = a*d - b*c
+
+	float dx = (jd / det) * fnx + (jbc / det) * fny;
+	float dy = (jbc / det) * fnx + (ja / det) * fny;
+
+	xn.x = xn.x - dx;
+	xn.y = xn.y - dy;
+
+	if(near(xn.x, 1) && near(xn.y, 0)){
+	    if(times == CIRCLE && last == 1){
+		return 1;
+	    }
+
+	    if(last == 1){
+		++times;
+	    } else {
+		times = 1;
+	    }
+
+	    last = 1;
+	} else if(near(xn.x, -1/2) && near(xn.y, SQRT3 / 2)){
+	    if(times == CIRCLE && last == 2){
+		return 2;
+	    }
+
+	    if(last == 2){
+		++times;
+	    } else {
+		times = 1;
+	    }
+
+	    last = 2;
+	} else if(near(xn.x, -1/2) && near(xn.y, -SQRT3 / 2)){
+	    if(times == CIRCLE && last == 3){
+		return 3;
+	    }
+
+	    if(last == 3){
+		++times;
+	    } else {
+		times = 1;
+	    }
+
+	    last = 3;
+	} else {
+	    times = 0;
+	    last = 0;
+	}
+
+	++current;
+    }
+
+    //Once we are here, it means that we are out the loop: black point
+    return 0;
 }
