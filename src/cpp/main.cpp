@@ -17,8 +17,8 @@ int launchNewtonOMP();
 int bench();
 
 int main(void){
-    return launchNewton();
-    //return launchNewtonOMP();
+    //return launchNewton();
+    return launchNewtonOMP();
     //return bench();
 }
 
@@ -51,17 +51,12 @@ int launchNewtonOMP(){
     char** argv = NULL;
     GLUTWindowManagers::init(0, argv);
 
-    float xMin = -1.7;
-    float xMax = +1.7;
-    float yMin = -1.1;
-    float yMax = +1.1;
-
-    DomaineMaths domain(xMin, yMin, xMax - xMin, yMax - yMin);
-
     int w = 800;
-    int h = 600;
+    int h = 800;
 
-    NewtonImageOMP* functionalImage = new NewtonImageOMP(w, h, domain, -0.745, +0.1);
+    DomaineMaths domain(-w / 2, - h / 2, w, h);
+
+    NewtonImageOMP* functionalImage = new NewtonImageOMP(w, h, domain);
     FractaleGLImage* functionSelections = new FractaleGLImage(functionalImage);
 
     GLUTWindowManagers* windowManager = GLUTWindowManagers::getInstance();

@@ -4,14 +4,11 @@
 
 class NewtonImageOMP : public FractaleImage {
     public:
-	NewtonImageOMP(int m, int n, DomaineMaths domain, float cReal, float cImag);
+	NewtonImageOMP(int m, int n, DomaineMaths domain);
 
     protected:
 	void refreshAll(const DomaineMaths& domainNew);
 
     private:
-	float newton(float x, float y);
-
-	const float cReal;
-	const float cImag;
+	int newton(float x, float y);
 };

@@ -6,7 +6,6 @@
 #include "NewtonSequential.hpp"
 
 NewtonImageSequential::NewtonImageSequential(int m, int n, DomaineMaths domain) : FractaleImage(m,n,domain){
-    //Nothing to init
     refreshAll(domain);
 }
 
