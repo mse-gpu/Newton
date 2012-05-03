@@ -18,8 +18,8 @@ int bench();
 
 int main(void){
     //return launchNewton();
-    return launchNewtonOMP();
-    //return bench();
+    //return launchNewtonOMP();
+    return bench();
 }
 
 int launchNewton(){
@@ -66,37 +66,32 @@ int launchNewtonOMP(){
     return 0;
 }
 
-#define DIM_H 12000
-#define DIM_W 16000
+#define DIM_H 10000
+#define DIM_W 10000
+#define TIMES 20
 
-#define THREADS 12
+#define THREADS 24
 
-#define N 52
-
-static float cReal = -0.745;
-static float cImag = +0.1;
-
-float julia(float x, float y){
-    float real = x;
-    float imag = y;
-
-    float n = 0;
-    float norm;
-
-    do{
-	float tmpReal = real;
-	real = real * real - imag * imag + cReal;
-	imag = tmpReal * imag + imag * tmpReal + cImag;
-
-	++n;
-
-	norm = sqrt(real * real + imag * imag);
-    } while (norm <= 2.0 && n < N);
-
-    return n == N ? 0 : (n / (float) N);
+//TODO That's ugly...
+namespace newton_bench {
+#include "Newton.hpp"
 }
 
-void benchParallelNewton(){
+struct rgba {
+	int r;
+	int g;
+	int b;
+	int a;
+};
+
+void setFloatRGBA(rgba* image, int i, int j, int r, int g, int b, int a){
+    image[i * (DIM_H) + j].r = r;
+    image[i * (DIM_H) + j].g = g;
+    image[i * (DIM_H) + j].b = b;
+    image[i * (DIM_H) + j].a = a;
+}
+
+void benchParallelNewton(rgba* image){
     omp_set_num_threads(THREADS);
 
     float xMin = -1.7;
@@ -108,7 +103,6 @@ void benchParallelNewton(){
 
     float dx = (float) (domain.dx / (float) DIM_W);
     float dy = (float) (domain.dy / (float) DIM_H);
-    float acc = 0;
 
     #pragma omp parallel
     {
@@ -121,9 +115,17 @@ void benchParallelNewton(){
     	    float x = domain.x0;
 
     	    for(int j = 1; j <= DIM_W; ++j){
-    		float h = julia(x, y);
+		int color = newton_bench::real_newton(x, y);
 
-    		acc += h;
+		if(color == 0){
+		    setFloatRGBA(image, i, j, 0, 0, 0, 0);
+		} else if(color == 1){
+		    setFloatRGBA(image, i, j, 1, 0, 0, 0);
+		} else if(color == 2){
+		    setFloatRGBA(image, i, j, 0, 1, 0, 0);
+		} else if(color == 3){
+		    setFloatRGBA(image, i, j, 0, 0, 1, 0);
+		}
 
     		x += dx;
     	    }
@@ -135,7 +137,7 @@ void benchParallelNewton(){
     }
 }
 
-void benchSequentialNewton(){
+void benchSequentialNewton(rgba* image){
     float xMin = -1.7;
     float xMax = +1.7;
     float yMin = -1.1;
@@ -153,9 +155,17 @@ void benchSequentialNewton(){
     	float x = domain.x0;
 
     	for(int j = 1; j <= DIM_W; ++j){
-    	    float h = julia(x, y);
+	    int color = newton_bench::real_newton(x, y);
 
-    	    acc += h;
+	    if(color == 0){
+		setFloatRGBA(image, i, j, 0, 0, 0, 0);
+	    } else if(color == 1){
+		setFloatRGBA(image, i, j, 1, 0, 0, 0);
+	    } else if(color == 2){
+		setFloatRGBA(image, i, j, 0, 1, 0, 0);
+	    } else if(color == 3){
+		setFloatRGBA(image, i, j, 0, 0, 1, 0);
+	    }
 
     	    x += dx;
     	}
@@ -167,22 +177,32 @@ void benchSequentialNewton(){
 void benchNewton(){
     std::cout << "Launch the Newton benchmark" << std::endl;
 
+    rgba* image = (rgba*) calloc(sizeof(rgba),  (DIM_H + 1) * (DIM_W + 1));
+
     ChronoOMPs chronos;
     chronos.start();
 
-    benchSequentialNewton();
+    for(int i = 0; i < TIMES; ++i){
+	benchSequentialNewton(image);
+    }
 
     double timeSequential = chronos.timeElapse();
-    std::cout << "Sequential version took " << timeSequential << "s" << std::endl;
+    std::cout << "Sequential Total (" << TIMES << " times) " << timeSequential << "s" << std::endl;
+    std::cout << "Sequential Mean  (" << TIMES << " times) " << (timeSequential / TIMES) << "s" << std::endl;
 
     chronos.start();
 
-    benchParallelNewton();
+    for(int i = 0; i < TIMES; ++i){
+	benchParallelNewton(image);
+    }
 
     double timeParallel = chronos.timeElapse();
-    std::cout << "OMP version took " << timeParallel << "s" << std::endl;
+    std::cout << "OMP Total (" << TIMES << " times) " << timeParallel << "s" << std::endl;
+    std::cout << "OMP Mean  (" << TIMES << " times) " << (timeParallel / TIMES) << "s" << std::endl;
 
     std::cout << "Factor=" << (timeSequential / timeParallel) << std::endl;
+
+    free(image);
 }
 
 int bench(){
