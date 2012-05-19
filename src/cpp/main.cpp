@@ -72,7 +72,6 @@ int launchNewtonOMP(){
 
 #define THREADS 24
 
-//TODO That's ugly...
 namespace newton_bench {
 #include "Newton.hpp"
 }
